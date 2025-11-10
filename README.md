@@ -39,6 +39,7 @@ pip install -e .
 - `aiohttp>=3.9.0` - Async HTTP client
 - `feedparser>=6.0.0` - RSS feed parsing
 - `lxml>=4.9.0` - XML processing
+- `lxml_html_clean>=0.4.0` - HTML cleaning for lxml (required by newspaper4k)
 
 ## Configuration
 
@@ -50,24 +51,89 @@ Add to your Claude Desktop config file:
 
 **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 
+**Configuration (recommended - using home directory shortcut):**
 ```json
 {
   "mcpServers": {
     "web-crawler": {
-      "command": "python",
-      "args": ["-m", "src.web_crawler_mcp.server"],
-      "cwd": "/path/to/web-crawler-mcp-server"
+      "command": "/Users/saiminhtet/web-crawler-mcp-server/venv/bin/python",
+      "args": ["-m", "web_crawler_mcp.server"]
     }
   }
 }
 ```
 
+**Alternative Configuration (generic template):**
+```json
+{
+  "mcpServers": {
+    "web-crawler": {
+      "command": "/absolute/path/to/web-crawler-mcp-server/venv/bin/python",
+      "args": ["-m", "web_crawler_mcp.server"]
+    }
+  }
+}
+```
+
+**Important Notes:**
+- Use the virtual environment's Python (in `venv/bin/python`) not system Python
+- The module name is `web_crawler_mcp.server` (no `src.` prefix when installed)
+- Use **absolute paths** (not `~` or relative paths)
+- If your path contains spaces or special characters, create a symlink: `ln -sf "/path/with/spaces" ~/web-crawler-mcp-server`
+- On Windows, use `venv\Scripts\python.exe` instead of `venv/bin/python`
+- After updating the config, restart Claude Desktop
+
+**Windows Example:**
+```json
+{
+  "mcpServers": {
+    "web-crawler": {
+      "command": "C:\\Users\\YourName\\web-crawler-mcp-server\\venv\\Scripts\\python.exe",
+      "args": ["-m", "web_crawler_mcp.server"]
+    }
+  }
+}
+```
+
+**Troubleshooting Path Issues:**
+
+If you get JSON parse errors with special characters in your path:
+```bash
+# Create a symlink without special characters
+ln -sf "/Users/saiminhtet/Research&Development/python/ai-development/web-crawler-mcp-server" ~/web-crawler-mcp-server
+
+# Then use the symlink path in your config:
+# /Users/saiminhtet/web-crawler-mcp-server/venv/bin/python
+```
+
+### Setup Steps
+
+1. **Create and activate virtual environment:**
+```bash
+cd /path/to/web-crawler-mcp-server
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+2. **Install the package:**
+```bash
+pip install -e .
+```
+
+3. **Update Claude Desktop config** (see configuration above)
+
+4. **Restart Claude Desktop**
+
 ### Other MCP Clients
 
-Run the server directly:
+Run the server directly from the virtual environment:
 
 ```bash
-python -m src.web_crawler_mcp.server
+# Activate virtual environment first
+source venv/bin/activate
+
+# Run the server
+python -m web_crawler_mcp.server
 ```
 
 The server communicates via stdio and follows the MCP protocol specification.
